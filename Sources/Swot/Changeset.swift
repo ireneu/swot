@@ -47,7 +47,7 @@ struct Changeset {
 infix operator >>>
 infix operator <~>
 extension Changeset {
-    static func >>>(lhs: Changeset, rhs: Changeset) throws -> Changeset {
+    static func >>> (lhs: Changeset, rhs: Changeset) throws -> Changeset {
         guard lhs.toLength == rhs.fromLength else { throw ChangesetError.uncomposableChangesets }
         
         guard !lhs.operations.isEmpty else { return rhs }
@@ -129,7 +129,7 @@ extension Changeset {
         return Changeset(operations: composedOperations)
     }
     
-    static func <~>(lhs: Changeset, rhs: Changeset) throws -> (left: Changeset, right: Changeset) {
+    static func <~> (lhs: Changeset, rhs: Changeset) throws -> (left: Changeset, right: Changeset) {
         guard lhs.fromLength == rhs.fromLength else { throw ChangesetError.uncombinableChangesets }
         
         var lPrime = [Operation]()
