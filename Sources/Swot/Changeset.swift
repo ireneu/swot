@@ -1,23 +1,52 @@
-
-struct Changeset {
-    let operations: [Operation]
+/// A collection of Operations that can be applied to a document.
+public struct Changeset {
+    /// Operations in the changeset.
+    public let operations: [ChangesetOperation]
     
-    var fromLength: Int { return operations.filter { !($0 is Add) }.map { $0.length }.reduce(0, +) }
-    var toLength: Int { return self.operations.filter { !($0 is Remove) }.map { $0.length }.reduce(0, +) }
+    /// Required document length to apply this changeset.
+    public var fromLength: Int { return operations.filter { !($0 is Add) }.map { $0.length }.reduce(0, +) }
+    /// Document length after applying the changeset.
+    public var toLength: Int { return self.operations.filter { !($0 is Remove) }.map { $0.length }.reduce(0, +) }
     
-    enum ChangesetError: Error {
+    /// Possible errors when using changesets
+    public enum ChangesetError: Error {
+        /// Lenghts don't match.
         case badTextLength
+        /// Changesets can't be composed.
         case uncomposableChangesets
+        /// Changesets can't be combined.
         case uncombinableChangesets
     }
     
-    init(operations: [Operation] = [Operation]()) {
-        var chainedOperations = [Operation]()
+    /**
+     Initializes a new changeset with given Operation list.
+     
+     Contiguous operations are combined when possible, when added to the changeset.
+     
+     - Parameters:
+        - operations: Changeset operations
+     
+     - Returns: Created changeset
+     */
+    public init(operations: [ChangesetOperation]) {
+        var chainedOperations = [ChangesetOperation]()
         operations.forEach { chainedOperations.chain($0) }
         self.operations = chainedOperations
     }
     
-    func apply(to text: String) throws -> String {
+    /**
+     Applies the changeset to given document.
+     
+     The text length has to match the changeset's `fromLength`.
+     
+     - Parameters:
+        - text: Document text
+     
+     - Throws: `ChangesetError.badTextLength` if text doesn't have the correct length
+     
+     - Returns: Transformed text
+     */
+    public func apply(to text: String) throws -> String {
         // Swift does not guarantee TCO (Tail Call Optimization) so going for an iterative version.
         guard fromLength == text.count else {
             throw ChangesetError.badTextLength
@@ -47,13 +76,63 @@ struct Changeset {
 infix operator >>>
 infix operator <~>
 extension Changeset {
-    static func >>> (lhs: Changeset, rhs: Changeset) throws -> Changeset {
+    /**
+     Composes the operations of both changesets. Equivalent to operator `>>>`.
+     `A.compose(with: B)` is equivalent to `A >>> B`.
+     
+     ```
+     Given changesets A, B, and C,
+     where C = A >>> B;
+     and documents T, S, and U,
+     where S = A(T) and U = B(S):
+     C(T) = U
+     ```
+     
+     `toLength` of the first changeset and `fromLength` of the second one need to be equal.
+     
+     - Parameters:
+        - other: second changeset
+     
+     - Throws: `ChangesetError.uncomposableChangesets` if changesets lengths have incompatible lengths
+     
+     - Returns: Composed changeset
+     */
+    public func compose(with other: Changeset) throws -> Changeset {
+        return try self >>> other
+    }
+    
+    /**
+     Takes two changesets to obtain complementary changesets. Equivalent to operator `<~>`.
+     
+     ```
+     Given changesets A, A', B, and B',
+     where (B', A') = A <~> B;
+     and document T, S, and U,
+     where S = A(T) and U = B(T):
+     B'(S) = A'(U)
+     ```
+     
+     Both changesets need to have the same `fromLength`.
+     
+     - Parameters:
+        - other: changeset to combine with
+     
+     - Throws: `ChangesetError.uncombinableChangesets` if changesets have incompatible lenghts
+     
+     - Returns: The two transformed changesets
+     */
+    public func combine(with other: Changeset) throws -> (left: Changeset, right: Changeset) {
+        return try self <~> other
+    }
+    
+    /// Compose two changesets.
+    public static func >>> (lhs: Changeset, rhs: Changeset) throws -> Changeset {
         guard lhs.toLength == rhs.fromLength else { throw ChangesetError.uncomposableChangesets }
         
         guard !lhs.operations.isEmpty else { return rhs }
         guard !rhs.operations.isEmpty else { return lhs }
         
-        var composedOperations = [Operation]()
+        var composedOperations = [ChangesetOperation]()
         var left = lhs.operations
         var right = rhs.operations
         var finished = false
@@ -129,11 +208,12 @@ extension Changeset {
         return Changeset(operations: composedOperations)
     }
     
-    static func <~> (lhs: Changeset, rhs: Changeset) throws -> (left: Changeset, right: Changeset) {
+    /// Combine two changesets.
+    public static func <~> (lhs: Changeset, rhs: Changeset) throws -> (left: Changeset, right: Changeset) {
         guard lhs.fromLength == rhs.fromLength else { throw ChangesetError.uncombinableChangesets }
         
-        var lPrime = [Operation]()
-        var rPrime = [Operation]()
+        var lPrime = [ChangesetOperation]()
+        var rPrime = [ChangesetOperation]()
         var left = lhs.operations
         var right = rhs.operations
         var finished = false
@@ -226,10 +306,11 @@ extension Changeset: Codable {
         case value
     }
     
-    init(from decoder: Decoder) throws {
+    /// Decode changeset
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ChangesetCodingKeys.self)
         var operations = try container.nestedUnkeyedContainer(forKey: .operations)
-        var decodedOperations = [Operation]()
+        var decodedOperations = [ChangesetOperation]()
         while !operations.isAtEnd {
             let operation = try operations.nestedContainer(keyedBy: OperationCodingKeys.self)
             let type = try operation.decode(OperationType.self, forKey: .type)
@@ -245,7 +326,8 @@ extension Changeset: Codable {
         self.operations = decodedOperations
     }
     
-    func encode(to encoder: Encoder) throws {
+    /// Encode changeset
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: ChangesetCodingKeys.self)
         var operationsContainer = container.nestedUnkeyedContainer(forKey: .operations)
         for operation in operations {

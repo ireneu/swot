@@ -1,5 +1,6 @@
-
-protocol Operation: Codable {
+/// Changeset operation
+public protocol ChangesetOperation: Codable {
+    /// Operation length
     var length: Int { get }
 }
 
@@ -11,19 +12,25 @@ enum OperationType: String, Codable {
 }
 
 
-struct Keep: Operation {
-    let value: Int
-    var length: Int { return value }
+/// Changeset operation that keeps characters from document
+public struct Keep: ChangesetOperation {
+    /// Kept characters
+    public let value: Int
+    public var length: Int { return value }
 }
 
 
-struct Add: Operation {
-    let value: String
-    var length: Int { return value.count }
+/// Changeset operation that adds characters to document
+public struct Add: ChangesetOperation {
+    /// Added characters
+    public let value: String
+    public var length: Int { return value.count }
 }
 
 
-struct Remove: Operation {
-    let value: Int
-    var length: Int { return value }
+/// Changeset operation that removes characters from document
+public struct Remove: ChangesetOperation {
+    /// Removed characters
+    public let value: Int
+    public var length: Int { return value }
 }

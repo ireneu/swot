@@ -1,6 +1,6 @@
 
-extension Array where Element == Operation {
-    mutating func chain(_ operation: Operation) {
+extension Array where Element == ChangesetOperation {
+    mutating func chain(_ operation: ChangesetOperation) {
         switch (self.last, operation) {
         case (let last as Keep, let new as Keep):
             self.replaceLast(by: Keep(value: last.value + new.value))
@@ -13,16 +13,16 @@ extension Array where Element == Operation {
         }
     }
     
-    mutating func prepend(_ newElement: Operation) {
+    mutating func prepend(_ newElement: ChangesetOperation) {
         insert(newElement, at: 0)
     }
     
-    mutating func replaceLast(by operation: Operation) {
+    mutating func replaceLast(by operation: ChangesetOperation) {
         self = Array(self.dropLast())
         self.append(operation)
     }
     
-    mutating func replaceFirst(by operation: Operation) {
+    mutating func replaceFirst(by operation: ChangesetOperation) {
         self = Array(self.dropFirst())
         self.prepend(operation)
     }
