@@ -72,7 +72,7 @@ final class SwotTests: XCTestCase {
         XCTAssert(result == firstApply)
     }
     
-    func testChangesetChaining() {
+    func testChangesetComposing() {
         let decoder = JSONDecoder()
         let changeset = try! decoder.decode(Changeset.self, from: jsonChangeset.data(using: .utf8)!)
         
@@ -87,11 +87,11 @@ final class SwotTests: XCTestCase {
         XCTAssert(chainedApplyText == "we are tasty!")
     }
     
-    func testChangesetBlending() {
-        let blended = try! anotherChangeset <~> yetAnotherChangeset
+    func testChangesetCombining() {
+        let combined = try! anotherChangeset <~> yetAnotherChangeset
         
-        let resa = try! blended.right.apply(to: anotherChangeset.apply(to: firstApply))
-        let resb = try! blended.left.apply(to: yetAnotherChangeset.apply(to: firstApply))
+        let resa = try! combined.right.apply(to: anotherChangeset.apply(to: firstApply))
+        let resb = try! combined.left.apply(to: yetAnotherChangeset.apply(to: firstApply))
         
         XCTAssert(resa == resb)
     }
@@ -99,7 +99,7 @@ final class SwotTests: XCTestCase {
     static var allTests = [
         ("testChangesetIsCodable", testChangesetIsCodable),
         ("testChangesetApply", testChangesetApply),
-        ("testChangesetChaining", testChangesetChaining),
-        ("testChangesetBlending", testChangesetBlending),
+        ("testChangesetComposing", testChangesetComposing),
+        ("testChangesetCombining", testChangesetCombining),
     ]
 }
