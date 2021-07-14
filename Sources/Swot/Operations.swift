@@ -17,6 +17,10 @@ public struct Keep: ChangesetOperation {
     /// Kept characters
     public let value: Int
     public var length: Int { return value }
+
+    public init(value: Int) {
+        self.value = value
+    }
 }
 
 
@@ -25,6 +29,10 @@ public struct Add: ChangesetOperation {
     /// Added characters
     public let value: String
     public var length: Int { return value.count }
+
+    public init(value: String) {
+        self.value = value
+    }
 }
 
 
@@ -33,4 +41,8 @@ public struct Remove: ChangesetOperation {
     /// Removed characters
     public let value: Int
     public var length: Int { return value }
+
+    public init(value: Int) {
+        self.value = value
+    }
 }
