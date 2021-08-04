@@ -7,7 +7,7 @@ final class SwotMultiByteCharTests: XCTestCase {
             "operations": [
                 {
                     "type": "keep",
-                    "value": 12
+                    "value": 13
                 },
                 {
                     "type": "add",
@@ -30,8 +30,8 @@ final class SwotMultiByteCharTests: XCTestCase {
     """
 
     // 👨‍👩‍👧.length == 8
-    let baseText = "👨‍👩‍👧qerty poiu!"
-    let firstApply = "👨‍👩‍👧qertasdfoiu!zxcv"
+    let baseText = "👨‍👩‍👧qwerty poiu!"
+    let firstApply = "👨‍👩‍👧qwertasdfoiu!zxcv"
 
     func testChangesetApply() {
         let decoder = JSONDecoder()

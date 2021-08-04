@@ -28,7 +28,7 @@ public struct Keep: ChangesetOperation {
 public struct Add: ChangesetOperation {
     /// Added characters
     public let value: String
-    public var length: Int { return value.count }
+    public var length: Int { return value.utf16.count }
 
     public init(value: String) {
         self.value = value
