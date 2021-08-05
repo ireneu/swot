@@ -41,6 +41,15 @@ final class SwotMultiByteCharTests: XCTestCase {
         Keep(value: 1),
         Remove(value: 4)
     ])
+    let yetAnotherChangeset = Changeset(operations: [
+        Remove(value: 11),
+        Add(value: " ab"),
+        Keep(value: 3),
+        Remove(value: 5),
+        Add(value: "ty"),
+        Keep(value: 5),
+        Remove(value: 1)
+    ])
 
     // 👨‍👩‍👧.length == 8
     let baseText = "👨‍👩‍👧qwerty poiu!"
@@ -70,8 +79,18 @@ final class SwotMultiByteCharTests: XCTestCase {
         XCTAssert(chainedApplyText == "👨‍👩‍👧we are tasty🍴!")
     }
 
+    func testChangesetCombining() {
+        let combined = try! anotherChangeset <~> yetAnotherChangeset
+
+        let resa = try! combined.right.apply(to: anotherChangeset.apply(to: firstApply))
+        let resb = try! combined.left.apply(to: yetAnotherChangeset.apply(to: firstApply))
+
+        XCTAssert(resa == resb)
+    }
+
     static var allTests = [
         ("testChangesetApply", testChangesetApply),
         ("testChangesetComposing", testChangesetComposing),
+        ("testChangesetCombining", testChangesetCombining),
     ]
 }
