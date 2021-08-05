@@ -63,7 +63,7 @@ public struct Changeset {
             case let operation as Add:
                 changedText.append(operation.value)
             case is Remove:
-                text.formIndex(&position, offsetBy: operation.length)
+                text.utf16.formIndex(&position, offsetBy: operation.length)
             default:
                 fatalError()
             }
