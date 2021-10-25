@@ -88,6 +88,24 @@ final class SwotMultiByteCharTests: XCTestCase {
         XCTAssert(resa == resb)
     }
 
+    func testChangeSetComposingWithMultiByteChars() {
+        let basetext = "A"
+        let changeset1 = Changeset(operations: [
+            Add(value: "👨‍👩‍👧"),
+            Keep(value: 1),
+            Add(value: "X")
+        ])
+        let changeset2 = Changeset(operations: [
+            Keep(value: 10),
+            Add(value: "YZ")
+        ])
+
+        let chained = try! changeset1 >>> changeset2
+        let chainedApplyText = try! chained.apply(to: basetext)
+
+        XCTAssert(chainedApplyText == "👨‍👩‍👧AXYZ")
+    }
+
     static var allTests = [
         ("testChangesetApply", testChangesetApply),
         ("testChangesetComposing", testChangesetComposing),
