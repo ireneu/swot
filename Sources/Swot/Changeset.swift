@@ -18,6 +18,8 @@ public struct Changeset {
         case uncombinableChangesets
         /// Unknown combination of Changeset Operation
         case unknownOperationCombination
+        /// Trying to encode unknown operation
+        case canNotEncodeUnknownOperation
     }
     
     /**
