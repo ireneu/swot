@@ -16,6 +16,10 @@ public struct Changeset {
         case uncomposableChangesets
         /// Changesets can't be combined.
         case uncombinableChangesets
+        /// Unknown combination of Changeset Operation
+        case unknownOperationCombination
+        /// Trying to encode unknown operation
+        case canNotEncodeUnknownOperation
     }
     
     /**
@@ -199,7 +203,7 @@ extension Changeset {
                     right.removeFirst()
                 }
             default:
-                fatalError("Unknown operation combination when trying to compose two changesets")
+                throw ChangesetError.unknownOperationCombination
             }
             
             if left.isEmpty && right.isEmpty { finished = true }
@@ -285,7 +289,7 @@ extension Changeset {
                     right.attemptToRemoveFirst()
                 }
             default:
-                fatalError("Unknown operation combination when trying to harmonize two changesets")
+                throw ChangesetError.unknownOperationCombination
             }
             
             if left.isEmpty && right.isEmpty { finished = true }
@@ -343,7 +347,7 @@ extension Changeset: Codable {
                 try operationContainer.encode(OperationType.remove, forKey: .type)
                 try operationContainer.encode(op.value, forKey: .value)
             default:
-                fatalError("Trying to encode unknown operation")
+                throw ChangesetError.canNotEncodeUnknownOperation
             }
         }
     }
