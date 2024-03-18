@@ -201,7 +201,7 @@ extension Changeset {
                     right.removeFirst()
                 }
             default:
-                fatalError("Unknown operation combination when trying to compose two changesets")
+                throw ChangesetError.unknownOperationCombination
             }
             
             if left.isEmpty && right.isEmpty { finished = true }
@@ -287,7 +287,7 @@ extension Changeset {
                     right.attemptToRemoveFirst()
                 }
             default:
-                fatalError("Unknown operation combination when trying to harmonize two changesets")
+                throw ChangesetError.unknownOperationCombination
             }
             
             if left.isEmpty && right.isEmpty { finished = true }
