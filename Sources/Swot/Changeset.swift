@@ -16,6 +16,8 @@ public struct Changeset {
         case uncomposableChangesets
         /// Changesets can't be combined.
         case uncombinableChangesets
+        /// Unknown combination of Changeset Operation
+        case unknownOperationCombination
     }
     
     /**
