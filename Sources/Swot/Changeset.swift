@@ -347,7 +347,7 @@ extension Changeset: Codable {
                 try operationContainer.encode(OperationType.remove, forKey: .type)
                 try operationContainer.encode(op.value, forKey: .value)
             default:
-                fatalError("Trying to encode unknown operation")
+                throw ChangesetError.canNotEncodeUnknownOperation
             }
         }
     }
